@@ -1,0 +1,28 @@
+database_params:
+  metric_type: L2
+  dim: 128
+connection_params:
+  secure: false
+collection_params:
+  collection_name: milvus_benchmark_collection
+concurrent_params:
+  concurrent_number: 5
+  during_time: 60 # second
+  interval: 20
+concurrent_tasks:
+  - type: query
+    weight: 1
+    params:
+      expr: "id in [1, 10, 100, 1000]"
+      timeout: 60
+  - type: search
+    weight: 1
+    params:
+      anns_field: float_vector
+      nq: 1
+      top_k: 1
+      search_param:
+        ef: 8
+      expr: null
+      timeout: 60
+      search_vectors: "/root/vectors.npy"  #support *.npy / *.json / *.txt
