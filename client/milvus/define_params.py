@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Any
+from typing import Optional
 
 
 MILVUS_DEFAULT_COLLECTION = "milvus_benchmark_collection"
@@ -14,19 +14,30 @@ DEFAULT_PRECISION = 3
 
 
 @dataclass
-class SearchParams:
-    vectors: Optional[list] = field(default_factory=lambda: [])
-
-
-@dataclass
-class MilvusPrams:
+class MilvusParams:
     database_params: Optional[dict] = field(default_factory=lambda: {})
+    insert_params: Optional[dict] = field(default_factory=lambda: {})
     connection_params: Optional[dict] = field(default_factory=lambda: {})
     collection_params: Optional[dict] = field(default_factory=lambda: {})
     index_params: Optional[dict] = field(default_factory=lambda: {})
     load_params: Optional[dict] = field(default_factory=lambda: {})
+    search_params: Optional[dict] = field(default_factory=lambda: {})
     concurrent_params: Optional[dict] = field(default_factory=lambda: {})
     concurrent_tasks: Optional[list] = field(default_factory=lambda: [])
+
+
+@dataclass
+class ConcurrentTasksParams:
+    type: int
+    weight: Optional[int] = 0
+    params: Optional[dict] = field(default_factory=lambda: {})
+    other_params: Optional[dict] = field(default_factory=lambda: {})
+
+
+@dataclass
+class ConcurrentTasks:
+    search: Optional[ConcurrentTasksParams] = field(default_factory=lambda: ConcurrentTasksParams(**{"type": "search"}))
+    query: Optional[ConcurrentTasksParams] = field(default_factory=lambda: ConcurrentTasksParams(**{"type": "query"}))
 
 
 @dataclass

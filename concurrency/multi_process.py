@@ -1,8 +1,8 @@
 import time
+import numpy as np
 from pprint import pformat
 import multiprocessing as mp
 from multiprocessing import get_context
-import numpy as np
 
 from concurrency.parser_result import ParserResult
 from utils.util_log import log
@@ -28,6 +28,7 @@ class MultiProcessConcurrent:
         time.sleep(t)
 
     def start(self, obj):
+        log.info("[MultiProcessConcurrent] Parameters used: \n{0}".format(obj.p_obj))
         ctx = get_context(self.get_mp_start_method())
         result = []
         parser_result = ParserResult(interval=obj.interval)
@@ -69,6 +70,4 @@ class MultiProcessConcurrent:
         log.info("[MultiProcessConcurrent] Summary of overall results: \n{0}".format(
             pformat(concurrent_result, sort_dicts=False)))
 
-        for prc in mp.active_children():
-            log.error(prc)
         return concurrent_result

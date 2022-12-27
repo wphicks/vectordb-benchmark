@@ -10,3 +10,9 @@ class ClientMock(ClientBase):
 
     def concurrent_pool_function(self, *args, **kwargs):
         pass
+
+    def get_concurrent_start_params(self, *args, **kwargs):
+        pass
+
+    def get_serial_start_params(self, *args, **kwargs):
+        pass

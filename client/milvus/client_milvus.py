@@ -1,18 +1,24 @@
 import threading
 import os
 import multiprocessing
+import numpy as np
+import tqdm
+import time
 from client.base.client_base import ClientBase
 from client.milvus.interface import InterfaceMilvus
 from client.milvus.parameters import ParametersMilvus
-from client.milvus.define_params import MilvusConcurrentParams
+from client.milvus.define_params import MilvusConcurrentParams, DEFAULT_PRECISION
+from common.common_func import normalize_data
+from datasets.reader import ReaderBase
 from utils.util_log import log
 
 
 class ClientMilvus(ClientBase):
-    def __init__(self, params: dict, host: str = None):
+    def __init__(self, params: dict, host: str = None, reader: ReaderBase = None):
         super().__init__()
         self.host = host
         self.params = params
+        self.reader = reader
 
         self.p_obj = ParametersMilvus(params)
         self.i_obj = InterfaceMilvus(self.host)
@@ -23,7 +29,48 @@ class ClientMilvus(ClientBase):
 
         self.concurrent_params = None
 
+    def serial_prepare_data(self, prepare=True):
+        self.i_obj.connect(self.host, **self.p_obj.params.connection_params)
+        if not prepare:
+            self.i_obj.connect_collection(self.p_obj.params.collection_params["collection_name"])
+        else:
+            self.i_obj.clean_all_collection()
+            self.i_obj.create_collection(**self.p_obj.serial_params.collection_params)
+
+            # insert vectors
+            insert_start = time.perf_counter()
+            for ids, vectors in tqdm.tqdm(self.reader.iter_train_vectors(self.p_obj.params.insert_params["batch"])):
+                self.i_obj.insert_batch(vectors, ids)
+            insert_time = round(time.perf_counter() - insert_start, DEFAULT_PRECISION)
+
+            self.i_obj.flush_collection()
+            index_start = time.perf_counter()
+            self.i_obj.build_index(**self.p_obj.serial_params.index_params)
+            index_time = round(time.perf_counter() - index_start, DEFAULT_PRECISION)
+
+            load_start = time.perf_counter()
+            self.i_obj.load_collection(**self.p_obj.serial_params.load_params)
+            load_time = round(time.perf_counter() - load_start, DEFAULT_PRECISION)
+            log.info(f"[ClientMilvus] Insert time:{insert_time}s, Index time:{index_time}s, Load time:{load_time}s")
+
+    def serial_search_recall(self):
+        for p in self.p_obj.serial_search_params:
+            recall_list = []
+            for s in self.reader.iter_test_vectors(p["nq"], p["top_k"]):
+                search_params = self.p_obj.search_params(p, vectors=s.vectors, serial=True)
+                recall_list.append(self.i_obj.search_recall(s.neighbors, **search_params))
+            recall = round(sum(recall_list) / len(recall_list), DEFAULT_PRECISION)
+            log.info(f"[ClientMilvus] Search recall:{recall}, search params:{p}")
+
+    def get_serial_start_params(self, rb: ReaderBase):
+        self.reader = rb
+        self.p_obj.serial_params_parser(metric_type=rb.config.similarity_metric_type, dim=rb.config.dim)
+        rb.dataset_content.test = normalize_data(rb.config.similarity_metric_type, np.array(rb.dataset_content.test))
+        rb.dataset_content.train = normalize_data(rb.config.similarity_metric_type, np.array(rb.dataset_content.train))
+        log.debug("[ClientMilvus] Parameters used: \n{}".format(self.p_obj))
+
     def get_concurrent_start_params(self):
+        self.p_obj.concurrent_tasks_parser()
         search = self.p_obj.concurrent_tasks.search
         query = self.p_obj.concurrent_tasks.query
         self.concurrent_params = MilvusConcurrentParams(**{
@@ -68,7 +115,7 @@ class ClientMilvus(ClientBase):
         log.debug(
             f" Start Concurrent API:{api_type}, PID:{os.getpid()}, {multiprocessing.current_process().name} ".center(
                 100, '#'))
-        self.concurrent_timer_stop(self.concurrent_params.concurrent_during_time, self.concurrent_stop)
+        self.concurrent_timer(self.concurrent_params.concurrent_during_time, self.concurrent_stop)
         while not self.stop_concurrent_flag:
             result.append(obj(**next(params_func())))
         return result
@@ -87,7 +134,7 @@ class ClientMilvus(ClientBase):
                 yield self.concurrent_params.search_params
 
     @staticmethod
-    def concurrent_timer_stop(during_time, func, args=None, kwargs=None):
+    def concurrent_timer(during_time, func, args=None, kwargs=None):
         t = threading.Timer(during_time, func, args=args, kwargs=kwargs)
         t.start()
 
