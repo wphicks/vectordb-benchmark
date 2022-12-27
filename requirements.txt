@@ -1,9 +1,7 @@
-#  python3.8 -m pip install -i https://pypi.doubanio.com/simple/  --trusted-host pypi.doubanio.com --upgrade pip
-#  python3.8 -m pip install --extra-index-url https://test.pypi.org/simple/ pymilvus==2.2.1.dev4
-
-
 pyyaml
 numpy
 tqdm
 stopit
 typer
+sklearn
+pymilvus

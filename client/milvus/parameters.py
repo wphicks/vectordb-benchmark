@@ -1,40 +1,33 @@
 import copy
 import math
-from typing import List, Optional
-from dataclasses import dataclass, field
-from common.common_func import read_file, milvus_gen_vectors
+import numpy as np
+from pprint import pformat
+from typing import List
+from common.common_func import read_file, milvus_gen_vectors, gen_combinations, normalize_data
 from client.base.parameters import ParametersBase
 from client.milvus.define_params import (
     MILVUS_DEFAULT_FIELD_NAME,
-    MilvusPrams,
+    MilvusParams,
     MILVUS_DEFAULT_COLLECTION,
     MILVUS_DEFAULT_METRIC_TYPE,
-    MILVUS_DEFAULT_DIM
+    MILVUS_DEFAULT_MAX_LENGTH,
+    MILVUS_DEFAULT_DIM,
+    ConcurrentTasksParams,
+    ConcurrentTasks
 )
 
 
-@dataclass
-class ConcurrentTasksParams:
-    type: int
-    weight: Optional[int] = 0
-    params: Optional[dict] = field(default_factory=lambda: {})
-    other_params: Optional[dict] = field(default_factory=lambda: {})
-
-
-@dataclass
-class ConcurrentTasks:
-    search: Optional[ConcurrentTasksParams] = field(default_factory=lambda: ConcurrentTasksParams(**{"type": "search"}))
-    query: Optional[ConcurrentTasksParams] = field(default_factory=lambda: ConcurrentTasksParams(**{"type": "query"}))
-
-
 class ParametersMilvus(ParametersBase):
+    def __str__(self):
+        return str(pformat(vars(self.params), sort_dicts=False))
+
     def __init__(self, params: dict):
-        self.params = MilvusPrams(**params)
+        self.params = MilvusParams(**params)
         self.update_default_params()
 
-        self.concurrent_tasks_params = {}
+        self.serial_params = None
+        self.serial_search_params = []
         self.concurrent_tasks = None
-        self.concurrent_tasks_parser()
 
     def update_default_params(self):
         if "collection_name" not in self.params.collection_params:
@@ -43,6 +36,33 @@ class ParametersMilvus(ParametersBase):
             self.params.database_params["metric_type"] = MILVUS_DEFAULT_METRIC_TYPE
         if "dim" not in self.params.database_params:
             self.params.database_params["dim"] = MILVUS_DEFAULT_DIM
+        if "max_length" not in self.params.database_params:
+            self.params.database_params["max_length"] = MILVUS_DEFAULT_MAX_LENGTH
+
+    def reset_default_params(self, collection_name: str = None, metric_type: str = None, dim: int = None):
+        self.params.collection_params["collection_name"] = collection_name or self.params.collection_params[
+            "collection_name"]
+        self.params.database_params["metric_type"] = metric_type or self.params.database_params["metric_type"]
+        self.params.database_params["dim"] = dim or self.params.database_params["dim"]
+
+    def serial_params_parser(self, collection_name: str = None, metric_type: str = None, dim: int = None):
+        self.reset_default_params(collection_name, metric_type, dim)
+        self.serial_params = copy.deepcopy(self.params)
+        self.serial_params.index_params.update({"metric_type": self.params.database_params["metric_type"]})
+        self.serial_params.collection_params.update({"dim": self.params.database_params["dim"]})
+        self.serial_params.collection_params.update({"max_length": self.params.database_params["max_length"]})
+
+        # parser search params to iter list
+        serial_search_params = copy.deepcopy(self.params.search_params)
+        if "search_param" in serial_search_params:
+            serial_search_params["search_param"] = gen_combinations(serial_search_params["search_param"])
+        s_p = gen_combinations({"top_k": serial_search_params.pop("top_k", 0),
+                                "nq": serial_search_params.pop("nq", 0),
+                                "search_param": serial_search_params.pop("search_param", {})})
+        for s in s_p:
+            s.update(serial_search_params)
+            s.update({"metric_type": self.params.database_params["metric_type"]})
+            self.serial_search_params.append(s)
 
     def concurrent_tasks_parser(self):
         p = copy.deepcopy(self.params.concurrent_tasks)
@@ -81,11 +101,13 @@ class ParametersMilvus(ParametersBase):
         kwargs.update(expr=_expr)
         return kwargs
 
-    def search_params(self, _search_params: dict, field_name: str, metric_type: str):
+    def search_params(self, _search_params: dict, field_name: str = MILVUS_DEFAULT_FIELD_NAME,
+                      metric_type: str = MILVUS_DEFAULT_METRIC_TYPE, serial=False, vectors=None):
         _params = copy.deepcopy(_search_params)
 
         limit = _params.pop("top_k")
         search_param = _params.pop("search_param")
+        metric_type = _params.pop("metric_type", metric_type)
         expr = self.parser_search_params_expr(_params.pop("expr")) if "expr" in _params else None
 
         _params.update({
@@ -95,11 +117,16 @@ class ParametersMilvus(ParametersBase):
         })
         if "anns_field" not in _params:
             _params.update({"anns_field": field_name})
+        nq = _params.pop("nq")
+
+        if serial:
+            _params.update({"data": vectors})
+            return _params
 
         search_vectors = _params.pop("search_vectors", None)
-        nq = _params.pop("nq")
         if search_vectors:
             search_vectors = read_file(search_vectors)
+            search_vectors = normalize_data(metric_type, np.array(search_vectors))
         else:
             search_vectors = milvus_gen_vectors(nb=nq, dim=self.params.database_params["dim"])
 

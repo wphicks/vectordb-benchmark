@@ -60,7 +60,7 @@ class TestLogConfig:
                     f.close()
                 # print("[clear_log_file] file(%s) modification is complete." % file_path)
 
-    def clear_debug_log_file(self, retry_counts=9999):
+    def restore_debug_log_file(self, retry_counts=9999):
         file_path = self.log_debug
         for i in range(retry_counts):
             file_path += f"_{i}"

@@ -3,6 +3,7 @@ import abc
 
 class ClientBase(metaclass=abc.ABCMeta):
     def __init__(self):
+        self.p_obj = None  # object for parameters
         self.interval = 0
         self.parallel = 0
         self.initializer = self.init_db
@@ -16,4 +17,12 @@ class ClientBase(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def concurrent_pool_function(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_concurrent_start_params(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def get_serial_start_params(self, *args, **kwargs):
         pass
