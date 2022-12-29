@@ -14,7 +14,8 @@ def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), c
 
     :param engine: only support milvus
 
-    :param config: specify config file path
+    :param config: specify the absolute path of the configuration file, and only use this configuration file;
+    if not specified, all milvus_concurrency*.yaml in the configuration directory will be used.
     """
     configs = [config] if config != "" else get_files(f"{engine}_concurrency")
     test_log.clear_log_file()
@@ -40,7 +41,8 @@ def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("mi
 
     :param prepare: search an existing collection without skipping data preparation
 
-    :param config: specify config file path
+    :param config: specify the absolute path of the configuration file, and only use this configuration file;
+     if not specified, all milvus_recall*.yaml in the configuration directory will be used.
     """
     configs = [config] if config != "" else get_files(f"{engine}_recall")
     test_log.clear_log_file()
