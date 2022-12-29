@@ -62,14 +62,16 @@ class ParametersMilvus(ParametersBase):
         for s in s_p:
             s.update(serial_search_params)
             s.update({"metric_type": self.params.database_params["metric_type"]})
+            s.update({"anns_field": self.params.database_params["metric_type"]})
             self.serial_search_params.append(s)
 
-    def concurrent_tasks_parser(self):
+    def concurrent_tasks_parser(self, metric_type: str = None, dim: int = None, anns_field=MILVUS_DEFAULT_FIELD_NAME):
+        self.reset_default_params(metric_type=metric_type, dim=dim)
         p = copy.deepcopy(self.params.concurrent_tasks)
         t = {}
         for task in p:
             if task["type"] == "search":
-                task["params"], task["other_params"] = self.search_params(task["params"], MILVUS_DEFAULT_FIELD_NAME,
+                task["params"], task["other_params"] = self.search_params(task["params"], anns_field,
                                                                           self.params.database_params["metric_type"])
             elif task["type"] == "query":
                 task["params"] = self.query_param_analysis(**task["params"])

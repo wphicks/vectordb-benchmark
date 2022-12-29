@@ -11,9 +11,10 @@ app = typer.Typer()
 def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), config: str = typer.Option("")):
     """
     :param host: server host
+
     :param engine: only support milvus
+
     :param config: specify config file path
-    :return:
     """
     configs = [config] if config != "" else get_files(f"{engine}_concurrency")
     test_log.clear_log_file()
@@ -31,11 +32,15 @@ def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("mi
            config: str = typer.Option("")):
     """
     :param host: server host
+
     :param engine: only support milvus
-    :param dataset_name: glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular
+
+    :param dataset_name: four datasets are available to choose from as follows:
+                        glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular
+
     :param prepare: search an existing collection without skipping data preparation
+
     :param config: specify config file path
-    :return:
     """
     configs = [config] if config != "" else get_files(f"{engine}_recall")
     test_log.clear_log_file()
