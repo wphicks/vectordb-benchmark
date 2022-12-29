@@ -70,7 +70,10 @@ class ClientMilvus(ClientBase):
         log.debug("[ClientMilvus] Parameters used: \n{}".format(self.p_obj))
 
     def get_concurrent_start_params(self):
-        self.p_obj.concurrent_tasks_parser()
+        self.init_db()
+        field_name, dim, metric_type = self.__class__.i_obj.get_collection_params()
+
+        self.p_obj.concurrent_tasks_parser(metric_type=metric_type, dim=dim, anns_field=field_name)
         search = self.p_obj.concurrent_tasks.search
         query = self.p_obj.concurrent_tasks.query
         self.concurrent_params = MilvusConcurrentParams(**{

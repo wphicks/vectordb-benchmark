@@ -11,6 +11,7 @@ from client.milvus.define_params import (
     MILVUS_DEFAULT_DIM,
     MILVUS_DEFAULT_FIELD_NAME,
     DEFAULT_PRECISION,
+    MILVUS_DEFAULT_METRIC_TYPE,
 )
 
 
@@ -33,7 +34,9 @@ def milvus_catch():
                 return rt
             finally:
                 log.debug(content)
+
         return inner_wrapper
+
     return wrapper
 
 
@@ -57,10 +60,21 @@ class InterfaceMilvus(InterfaceBase):
         collections = utility.list_collections()
         log.debug("[InterfaceMilvus] Start cleaning all collections: {}".format(collections))
         for i in collections:
-            # c = Collection(i)
-            # c.release()
-            # c.drop()
             utility.drop_collection(i)
+
+    def get_collection_params(self):
+        field_name = MILVUS_DEFAULT_FIELD_NAME
+        dim = MILVUS_DEFAULT_DIM
+        metric_type = MILVUS_DEFAULT_METRIC_TYPE
+
+        for field in self.collection.schema.fields:
+            if field.dtype == DataType.FLOAT_VECTOR:
+                field_name = field.name
+                dim = field.params.get("dim")
+        if self.collection.has_index():
+            metric_type = self.collection.index().params.get("metric_type")
+
+        return field_name, dim, metric_type
 
     def create_collection(self, collection_name="", vector_field_name=MILVUS_DEFAULT_FIELD_NAME, schema=None,
                           other_fields=[], shards_num=2, **kwargs):
@@ -146,7 +160,8 @@ class InterfaceMilvus(InterfaceBase):
         data_types = dict(sorted(data_types.items(), key=lambda item: item[0], reverse=True))
         return data_types
 
-    def gen_field_schema(self, name: str, dtype=None, description=MILVUS_DEFAULT_DESCRIPTION, is_primary=False, **kwargs):
+    def gen_field_schema(self, name: str, dtype=None, description=MILVUS_DEFAULT_DESCRIPTION, is_primary=False,
+                         **kwargs):
         field_types = self.field_type()
         if dtype is None:
             for _field in field_types.keys():
