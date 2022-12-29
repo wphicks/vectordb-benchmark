@@ -123,10 +123,11 @@ class ParametersMilvus(ParametersBase):
             _params.update({"data": vectors})
             return _params
 
-        search_vectors = _params.pop("search_vectors", None)
-        if search_vectors:
-            search_vectors = read_file(search_vectors)
-            search_vectors = normalize_data(metric_type, np.array(search_vectors))
+        search_vectors_file = _params.pop("search_vectors", None)
+        if search_vectors_file:
+            search_vectors = read_file(search_vectors_file)
+            if str(search_vectors_file).endswith("hdf5"):
+                search_vectors = normalize_data(metric_type, np.array(search_vectors))
         else:
             search_vectors = milvus_gen_vectors(nb=nq, dim=self.params.database_params["dim"])
 

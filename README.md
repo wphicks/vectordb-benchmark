@@ -6,8 +6,12 @@ This tool provides the ability to calculate the performance of the vector databa
 2. Specify the search vector and parameters, and calculate the QPS
 
 ## run benchmark client
-Logs of the benchmarks are stored in the ./results/result.*
-Datasets of the benchmarks are stored in the ./datasets/dataset_files/
+* Logs of the benchmarks are stored in the ./results/result.*
+
+* Datasets of the benchmarks are stored in the ./datasets/dataset_files/
+
+* Configs of the benchmarks are stored in the ./configurations/*.yaml
+
 
 install dependencies:
 
