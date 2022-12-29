@@ -8,15 +8,17 @@ app = typer.Typer()
 
 
 @app.command()
-def concurrency(host: str = "localhost", engine: str = typer.Option("milvus")):
+def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), config: str = typer.Option("")):
     """
     :param host: server host
     :param engine: only support milvus
+    :param config: specify config file path
     :return:
     """
+    configs = [config] if config != "" else get_files(f"{engine}_concurrency")
     test_log.clear_log_file()
     log.info(" Concurrency task started! ".center(120, "-"))
-    for f in get_files(f"{engine}_concurrency"):
+    for f in configs:
         c = ClientEntry(engine, host, read_file(f))
         c.start_concurrency()
         test_log.restore_debug_log_file()
@@ -25,17 +27,20 @@ def concurrency(host: str = "localhost", engine: str = typer.Option("milvus")):
 
 @app.command()
 def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("milvus"),
-           dataset_name: str = typer.Option("glove-25-angular"), prepare: bool = typer.Option(True)):
+           dataset_name: str = typer.Option("glove-25-angular"), prepare: bool = typer.Option(True),
+           config: str = typer.Option("")):
     """
     :param host: server host
     :param engine: only support milvus
     :param dataset_name: glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular
     :param prepare: search an existing collection without skipping data preparation
+    :param config: specify config file path
     :return:
     """
+    configs = [config] if config != "" else get_files(f"{engine}_recall")
     test_log.clear_log_file()
     log.info(" Recall task started! ".center(120, "-"))
-    for f in get_files(f"{engine}_recall"):
+    for f in configs:
         c = ClientEntry(engine, host, read_file(f))
         c.start_recall(dataset_name=dataset_name, prepare=prepare)
         test_log.restore_debug_log_file()
