@@ -99,6 +99,10 @@ class InterfaceMilvus(InterfaceBase):
     def flush_collection(self):
         return self.collection.flush()
 
+    def wait_for_compaction_completed(self):
+        self.collection.compact()
+        self.collection.wait_for_compaction_completed()
+
     def load_collection(self, **kwargs):
         log.debug("[InterfaceMilvus] Start loading.")
         return self.collection.load(**kwargs)
