@@ -1,5 +1,5 @@
 import typer
-from configurations import get_files
+from configurations import get_files, get_custom_files
 from client import ClientEntry
 from common.common_func import read_file
 from utils.util_log import test_log, log
@@ -8,16 +8,18 @@ app = typer.Typer()
 
 
 @app.command()
-def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), config: str = typer.Option("")):
+def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), config_name: str = typer.Option("")):
     """
     :param host: server host
 
     :param engine: only support milvus
 
-    :param config: specify the absolute path of the configuration file, and only use this configuration file;
-    if not specified, all milvus_concurrency*.yaml in the configuration directory will be used.
+    :param config_name:
+        specify the name of the configuration file in the configurations directory,
+        and only use this configuration file;
+        if not specified, all milvus_concurrency*.yaml in the configuration directory will be used.
     """
-    configs = [config] if config != "" else get_files(f"{engine}_concurrency")
+    configs = get_custom_files(config_name) if config_name != "" else get_files(f"{engine}_concurrency")
     test_log.clear_log_file()
     log.info(" Concurrency task started! ".center(120, "-"))
     for f in configs:
@@ -30,7 +32,7 @@ def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), c
 @app.command()
 def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("milvus"),
            dataset_name: str = typer.Option("glove-25-angular"), prepare: bool = typer.Option(True),
-           config: str = typer.Option("")):
+           config_name: str = typer.Option("")):
     """
     :param host: server host
 
@@ -41,10 +43,12 @@ def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("mi
 
     :param prepare: search an existing collection without skipping data preparation
 
-    :param config: specify the absolute path of the configuration file, and only use this configuration file;
-     if not specified, all milvus_recall*.yaml in the configuration directory will be used.
+    :param config_name:
+        specify the name of the configuration file in the configurations directory,
+        and only use this configuration file;
+        if not specified, all milvus_recall*.yaml in the configuration directory will be used.
     """
-    configs = [config] if config != "" else get_files(f"{engine}_recall")
+    configs = get_custom_files(config_name) if config_name != "" else get_files(f"{engine}_recall")
     test_log.clear_log_file()
     log.info(" Recall task started! ".center(120, "-"))
     for f in configs:

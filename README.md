@@ -15,6 +15,7 @@ This is an open-source benchmark for evaluating the performance of vector databa
 
 
 ### install dependencies:
+python3 (>=3.8)
 
 `pip install -r requirements.txt`
 
@@ -39,16 +40,17 @@ Usage: main.py recall [OPTIONS]
   :param prepare: search an existing collection without skipping data
   preparation
 
-  :param config: specify the absolute path of the configuration file, and only
-  use this configuration file;  if not specified, all milvus_recall*.yaml in
-  the configuration directory will be used.
+  :param config_name:     specify the name of the configuration file in the
+  configurations directory,     and only use this configuration file;     if
+  not specified, all milvus_recall*.yaml in the configuration directory will
+  be used.
 
 Options:
   --host TEXT               [default: localhost]
   --engine TEXT             [default: milvus]
   --dataset-name TEXT       [default: glove-25-angular]
   --prepare / --no-prepare  [default: prepare]
-  --config TEXT
+  --config-name TEXT
   --help                    Show this message and exit.
 ```
 
@@ -71,15 +73,16 @@ Usage: main.py concurrency [OPTIONS]
 
   :param engine: only support milvus
 
-  :param config: specify the absolute path of the configuration file, and only
-  use this configuration file; if not specified, all milvus_concurrency*.yaml
-  in the configuration directory will be used.
+  :param config_name:     specify the name of the configuration file in the
+  configurations directory,     and only use this configuration file;     if
+  not specified, all milvus_concurrency*.yaml in the configuration directory
+  will be used.
 
 Options:
-  --host TEXT    [default: localhost]
-  --engine TEXT  [default: milvus]
-  --config TEXT
-  --help         Show this message and exit.
+  --host TEXT         [default: localhost]
+  --engine TEXT       [default: milvus]
+  --config-name TEXT
+  --help              Show this message and exit.
 ```
 
 example: `python3 main.py concurrency --host localhost --engine milvus`
