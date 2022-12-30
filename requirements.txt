@@ -1,7 +1,10 @@
 pyyaml
+h5py
 numpy
 tqdm
 stopit
 typer
 sklearn
+scikit-learn
+requests
 pymilvus
