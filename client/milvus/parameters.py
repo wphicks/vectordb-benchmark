@@ -62,7 +62,6 @@ class ParametersMilvus(ParametersBase):
         for s in s_p:
             s.update(serial_search_params)
             s.update({"metric_type": self.params.database_params["metric_type"]})
-            s.update({"anns_field": self.params.database_params["metric_type"]})
             self.serial_search_params.append(s)
 
     def concurrent_tasks_parser(self, metric_type: str = None, dim: int = None, anns_field=MILVUS_DEFAULT_FIELD_NAME):

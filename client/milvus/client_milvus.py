@@ -47,6 +47,8 @@ class ClientMilvus(ClientBase):
             index_start = time.perf_counter()
             self.i_obj.build_index(**self.p_obj.serial_params.index_params)
             index_time = round(time.perf_counter() - index_start, DEFAULT_PRECISION)
+            self.i_obj.wait_for_compaction_completed()
+            self.i_obj.build_index(**self.p_obj.serial_params.index_params)
 
             load_start = time.perf_counter()
             self.i_obj.load_collection(**self.p_obj.serial_params.load_params)
