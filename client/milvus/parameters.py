@@ -3,7 +3,8 @@ import math
 import numpy as np
 from pprint import pformat
 from typing import List
-from common.common_func import read_file, milvus_gen_vectors, gen_combinations, normalize_data
+from datasets import DATASET_FILES_DIR
+from common.common_func import read_search_file, milvus_gen_vectors, gen_combinations, normalize_data
 from client.base.parameters import ParametersBase
 from client.milvus.define_params import (
     MILVUS_DEFAULT_FIELD_NAME,
@@ -126,7 +127,7 @@ class ParametersMilvus(ParametersBase):
 
         search_vectors_file = _params.pop("search_vectors", None)
         if search_vectors_file:
-            search_vectors = read_file(search_vectors_file)
+            search_vectors = read_search_file(search_vectors_file, DATASET_FILES_DIR)
             if str(search_vectors_file).endswith("hdf5"):
                 search_vectors = normalize_data(metric_type, np.array(search_vectors))
         else:

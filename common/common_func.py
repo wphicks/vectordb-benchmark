@@ -9,9 +9,10 @@ from sklearn import preprocessing
 from utils.util_log import log
 
 
-def check_file_exist(file_dir):
+def check_file_exist(file_dir, out_put=True):
     if not os.path.isfile(file_dir):
-        log.info("[check_file_exist] File not exist:{}".format(file_dir))
+        if out_put:
+            log.info("[check_file_exist] File not exist:{}".format(file_dir))
         return False
     return True
 
@@ -85,6 +86,12 @@ def read_file(file_path: str):
     if check_file_exist(file_path) and file_type in support_file_types:
         return support_file_types[file_type](file_path)
     raise Exception("[read_file] Can not read file: {}, please check.".format(file_path))
+
+
+def read_search_file(file_path: str, root_path: str = ""):
+    if not check_file_exist(file_path, out_put=False):
+        file_path = root_path + file_path
+    return read_file(file_path)
 
 
 def milvus_gen_vectors(nb, dim):

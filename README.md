@@ -41,9 +41,8 @@ Usage: main.py recall [OPTIONS]
   preparation
 
   :param config_name:     specify the name of the configuration file in the
-  configurations directory,     and only use this configuration file;     if
-  not specified, all milvus_recall*.yaml in the configuration directory will
-  be used.
+  configurations directory by prefix matching;     if not specified, all
+  milvus_recall*.yaml in the configuration directory will be used.
 
 Options:
   --host TEXT               [default: localhost]
@@ -74,9 +73,8 @@ Usage: main.py concurrency [OPTIONS]
   :param engine: only support milvus
 
   :param config_name:     specify the name of the configuration file in the
-  configurations directory,     and only use this configuration file;     if
-  not specified, all milvus_concurrency*.yaml in the configuration directory
-  will be used.
+  configurations directory by prefix matching;     if not specified, all
+  milvus_concurrency*.yaml in the configuration directory will be used.
 
 Options:
   --host TEXT         [default: localhost]
