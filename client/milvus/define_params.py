@@ -43,8 +43,9 @@ class ConcurrentTasks:
 @dataclass
 class MilvusConcurrentParams:
     concurrent_during_time: int
-    interval: int
     parallel: int
+    interval: int
+    warm_time: Optional[int] = 0
 
     # search params
     search_nq: Optional[int] = 0

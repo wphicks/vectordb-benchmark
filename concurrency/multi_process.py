@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 import numpy as np
 from pprint import pformat
 import multiprocessing as mp
@@ -31,7 +32,7 @@ class MultiProcessConcurrent:
         log.info("[MultiProcessConcurrent] Parameters used: \n{0}".format(obj.p_obj))
         ctx = get_context(self.get_mp_start_method())
         result = []
-        parser_result = ParserResult(interval=obj.interval)
+        parser_result = ParserResult(interval=obj.interval, warm_time=obj.warm_time, during_time=obj.during_time)
 
         log.info("[MultiProcessConcurrent] Start initializing the concurrent pool")
         pool = None
@@ -39,7 +40,7 @@ class MultiProcessConcurrent:
             pool = ctx.Pool(processes=obj.parallel, initializer=obj.initializer, initargs=obj.init_args)
             self.wait_time(obj.parallel)
             log.info("[MultiProcessConcurrent] Start concurrent pool")
-            parser_result.start_stream_read()
+            parser_result.start_stream_read(start_time=datetime.now())
 
             start = time.perf_counter()
             for r in pool.imap_unordered(obj.pool_func, iterable=obj.iterable):
@@ -47,7 +48,7 @@ class MultiProcessConcurrent:
             total_time = round(time.perf_counter() - start, DEFAULT_PRECISION)
 
             log.info("[MultiProcessConcurrent] End concurrent pool")
-            parser_result.finish_stream_read(during_time=total_time)
+            parser_result.finish_stream_read(real_time=total_time)
         except Exception as e:
             raise Exception("[MultiProcessConcurrent] Concurrent pool failed: {}".format(e))
         finally:

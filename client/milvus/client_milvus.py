@@ -47,8 +47,8 @@ class ClientMilvus(ClientBase):
             index_start = time.perf_counter()
             self.i_obj.build_index(**self.p_obj.serial_params.index_params)
             index_time = round(time.perf_counter() - index_start, DEFAULT_PRECISION)
-            self.i_obj.wait_for_compaction_completed()
-            self.i_obj.build_index(**self.p_obj.serial_params.index_params)
+            # self.i_obj.wait_for_compaction_completed()
+            # self.i_obj.build_index(**self.p_obj.serial_params.index_params)
 
             load_start = time.perf_counter()
             self.i_obj.load_collection(**self.p_obj.serial_params.load_params)
@@ -80,8 +80,10 @@ class ClientMilvus(ClientBase):
         query = self.p_obj.concurrent_tasks.query
         self.concurrent_params = MilvusConcurrentParams(**{
             "concurrent_during_time": self.p_obj.params.concurrent_params["during_time"],
-            "interval": self.p_obj.params.concurrent_params["interval"],
             "parallel": self.p_obj.params.concurrent_params["concurrent_number"],
+            "interval": self.p_obj.params.concurrent_params["interval"],
+            "warm_time": self.p_obj.params.concurrent_params[
+                "warm_time"] if "warm_time" in self.p_obj.params.concurrent_params else 0,
             "search_nq": search.other_params.get("nq", 0),
             "search_vectors_len": len(search.other_params.get("search_vectors", 0)),
             "search_params": search.params,
@@ -102,6 +104,8 @@ class ClientMilvus(ClientBase):
 
         self.interval = self.concurrent_params.interval
         self.parallel = self.concurrent_params.parallel
+        self.warm_time = self.concurrent_params.warm_time
+        self.during_time = self.concurrent_params.concurrent_during_time
         self.initializer = self.init_db
         self.init_args = ()
         self.pool_func = self.concurrent_pool_function
@@ -120,7 +124,8 @@ class ClientMilvus(ClientBase):
         log.debug(
             f" Start Concurrent API:{api_type}, PID:{os.getpid()}, {multiprocessing.current_process().name} ".center(
                 100, '#'))
-        self.concurrent_timer(self.concurrent_params.concurrent_during_time, self.concurrent_stop)
+        self.concurrent_timer(self.concurrent_params.warm_time * 2 + self.concurrent_params.concurrent_during_time,
+                              self.concurrent_stop)
         while not self.stop_concurrent_flag:
             result.append(obj(**next(params_func())))
         return result

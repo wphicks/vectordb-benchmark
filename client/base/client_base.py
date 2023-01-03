@@ -5,6 +5,8 @@ class ClientBase(metaclass=abc.ABCMeta):
     def __init__(self):
         self.p_obj = None  # object for parameters
         self.interval = 0
+        self.warm_time = 0
+        self.during_time = 0
         self.parallel = 0
         self.initializer = self.init_db
         self.init_args = ()
