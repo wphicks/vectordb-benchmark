@@ -1,0 +1,41 @@
+# This configuration is for the recall test
+
+# Connection parameters can be added dynamically
+connection_params:
+  secure: false
+
+# Collection parameters can be added dynamically
+collection_params:
+  collection_name: milvus_benchmark_collection
+  other_fields: []
+
+insert_params:
+#  The data size of the vector inserted each time can be specified
+  batch: 10000
+
+# Index parameters can be added dynamically
+index_params:
+  index_type: HNSW
+  index_param:
+    M: 16
+    efConstruction: 100
+
+# Load parameters can be added dynamically
+# example:
+#  load_params:
+#     timeout: 60
+load_params: {}
+
+# Search parameters can be added dynamically
+search_params:
+  timeout: 1800
+
+# The following three sets of parameters will be cross-combined,
+# and then the corresponding recall rate test will be carried out in turn.
+  top_k: [100]
+  nq: [5000]
+  search_param:
+    ef: [190]
+
+# After that, you can choose the most appropriate search parameters for concurrency testing
+# and get the optimal QPS of the server
