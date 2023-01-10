@@ -18,8 +18,8 @@ from client.milvus.define_params import (
 def milvus_catch():
     def wrapper(func):
         def inner_wrapper(*args, **kwargs) -> float:
-            start = time.perf_counter()
             content = f"##['{func.__name__}', "
+            start = time.perf_counter()
             try:
                 res = func(*args, **kwargs)
                 rt = (time.perf_counter() - start) * 1000
@@ -34,9 +34,7 @@ def milvus_catch():
                 return rt
             finally:
                 log.debug(content)
-
         return inner_wrapper
-
     return wrapper
 
 
@@ -85,6 +83,9 @@ class InterfaceMilvus(InterfaceBase):
         self.collection = Collection(collection_name, schema=schema, shards_num=shards_num, **kwargs)
 
     def insert_batch(self, vectors, ids, varchar_filled=False):
+        """
+        :return: rt / s
+        """
         if self.collection_schema is None:
             self.collection_schema = self.collection.schema.to_dict()
 
@@ -93,8 +94,9 @@ class InterfaceMilvus(InterfaceBase):
         else:
             entities = self.gen_entities(self.collection_schema, vectors.tolist(), ids, varchar_filled)
 
+        start = time.perf_counter()
         res = self.collection.insert(entities)
-        return res
+        return round(time.perf_counter() - start, DEFAULT_PRECISION)
 
     def flush_collection(self):
         return self.collection.flush()
@@ -118,7 +120,7 @@ class InterfaceMilvus(InterfaceBase):
     @milvus_catch()
     def search(self, data, anns_field, param, limit, expr=None, timeout=300, **kwargs):
         """
-        :return: rt
+        :return: rt / ms
         example: 200
         """
         return self.collection.search(data, anns_field, param, limit, expr=expr, timeout=timeout, **kwargs)
@@ -226,24 +228,6 @@ class InterfaceMilvus(InterfaceBase):
             _type = field["type"]
             entities.update({field["name"]: self.gen_values(_type, vectors, ids, varchar_filled, field)})
         return pd.DataFrame(entities)
-
-    @staticmethod
-    def get_recall_value(true_ids, result_ids):
-        """
-        Use the intersection length
-        """
-        sum_radio = 0.0
-        topk_check = True
-        for index, item in enumerate(result_ids):
-            tmp = set(true_ids[index]).intersection(set(item))
-            if len(item) != 0:
-                sum_radio += len(tmp) / len(item)
-            else:
-                topk_check = False
-                log.error("[get_recall_value] Length of returned topk is 0, please check.")
-        if topk_check is False:
-            raise ValueError("[get_recall_value] The result of topk is wrong, please check: {}".format(result_ids))
-        return round(sum_radio / len(result_ids), 3)
 
     @staticmethod
     def get_search_ids(result):

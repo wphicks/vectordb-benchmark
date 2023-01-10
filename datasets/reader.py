@@ -36,9 +36,10 @@ class ReaderBase:
         self.dataset_content = DatasetContent(f["neighbors"], f["test"], f["train"], f["distances"])
 
     def iter_train_vectors(self, batch: int):
-        all_iter = [batch for i in range(batch, len(self.dataset_content.train), batch)]
-        if len(self.dataset_content.train) % batch > 0:
-            all_iter += (len(self.dataset_content.train) % batch, )
+        train_len = len(self.dataset_content.train)
+        all_iter = [batch for i in range(batch, train_len, batch)]
+        if train_len % batch > 0:
+            all_iter += (train_len % batch, )
 
         _start = 0
         for i in all_iter:

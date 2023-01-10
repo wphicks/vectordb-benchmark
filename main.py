@@ -2,7 +2,7 @@ import typer
 from configurations import get_files, get_custom_files
 from client import ClientEntry
 from common.common_func import read_file
-from utils.util_log import test_log, log
+from utils.util_log import log
 
 app = typer.Typer()
 
@@ -12,19 +12,19 @@ def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), c
     """
     :param host: server host
 
-    :param engine: only support milvus
+    :param engine: only supports milvus / elasticsearch
 
     :param config_name:
         specify the name of the configuration file in the configurations directory by prefix matching;
         if not specified, all milvus_concurrency*.yaml in the configuration directory will be used.
     """
     configs = get_custom_files(config_name) if config_name != "" else get_files(f"{engine}_concurrency")
-    test_log.clear_log_file()
+    log.clear_log_file()
     log.info(" Concurrency task started! ".center(120, "-"))
     for f in configs:
         c = ClientEntry(engine, host, read_file(f))
         c.start_concurrency()
-        test_log.restore_debug_log_file()
+        log.restore_debug_log_file()
     log.info(" Concurrency task finished! ".center(120, "-"))
 
 
@@ -35,7 +35,7 @@ def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("mi
     """
     :param host: server host
 
-    :param engine: only support milvus
+    :param engine: only supports milvus / elasticsearch
 
     :param dataset_name: four datasets are available to choose from as follows:
                         glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular
@@ -47,12 +47,12 @@ def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("mi
         if not specified, all milvus_recall*.yaml in the configuration directory will be used.
     """
     configs = get_custom_files(config_name) if config_name != "" else get_files(f"{engine}_recall")
-    test_log.clear_log_file()
+    log.clear_log_file()
     log.info(" Recall task started! ".center(120, "-"))
     for f in configs:
         c = ClientEntry(engine, host, read_file(f))
         c.start_recall(dataset_name=dataset_name, prepare=prepare)
-        test_log.restore_debug_log_file()
+        log.restore_debug_log_file()
     log.info(" Recall task finished! ".center(120, "-"))
 
 

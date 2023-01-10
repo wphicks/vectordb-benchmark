@@ -1,8 +1,6 @@
 import copy
-import math
 import numpy as np
 from pprint import pformat
-from typing import List
 from datasets import DATASET_FILES_DIR
 from common.common_func import read_search_file, milvus_gen_vectors, gen_combinations, normalize_data
 from client.base.parameters import ParametersBase
@@ -93,7 +91,7 @@ class ParametersMilvus(ParametersBase):
 
         _expr = ""
         if ids is None and expr is None:
-            raise Exception("[CommonCases] Params of query are needed.")
+            raise Exception("[ParametersMilvus] Params of query are needed.")
 
         elif ids is not None:
             _expr = "id in %s" % str(ids)
@@ -136,7 +134,7 @@ class ParametersMilvus(ParametersBase):
         # generate vectors for recursive search
         vectors_len = len(search_vectors)
         lcm = self.least_common_multiple([nq, vectors_len])
-        search_vectors = search_vectors * int((lcm / vectors_len))
+        search_vectors = search_vectors * int(lcm / vectors_len)
 
         other_params = {
             "nq": nq,
@@ -148,26 +146,26 @@ class ParametersMilvus(ParametersBase):
     def compare_expr(left, comp, right):
         if comp == "LT":
             return "{0} < {1}".format(left, right)
-        elif comp == "LE":
+        elif comp == "LTE":
             return "{0} <= {1}".format(left, right)
         elif comp == "EQ":
             return "{0} == {1}".format(left, right)
         elif comp == "NE":
             return "{0} != {1}".format(left, right)
-        elif comp == "GE":
+        elif comp == "GTE":
             return "{0} >= {1}".format(left, right)
         elif comp == "GT":
             return "{0} > {1}".format(left, right)
-        raise Exception("[compare_expr] Not support expr: {0}".format(comp))
+        raise Exception("[ParametersMilvus] Not support expr: {0}".format(comp))
 
     def parser_search_params_expr(self, expr):
         """
         :param expr:
             LT: less than
-            LE: less than or equal to
+            LTE: less than or equal to
             EQ: equal to
             NE: not equal to
-            GE: greater than or equal to
+            GTE: greater than or equal to
             GT: greater than
         :return: expression of search
         """
@@ -182,26 +180,11 @@ class ParametersMilvus(ParametersBase):
                 field_name = key
                 if isinstance(value, dict):
                     for k, v in value.items():
-                        _e = self.compare_expr(field_name, k, v)
+                        _e = self.compare_expr(str(field_name).upper(), k, v)
                         expression = _e if expression == "" else "{0} && {1}".format(expression, _e)
         else:
             raise Exception(
-                "[parser_search_params_expr] Can't parser search expression: {0}, type:{1}".format(expr, type(expr)))
+                "[ParametersMilvus] Can't parser search expression: {0}, type:{1}".format(expr, type(expr)))
         if expression == "":
             expression = None
         return expression
-
-    @staticmethod
-    def least_common_multiple(args: List[int]):
-        def lcm(a: int, b: int):
-            return int(a * b / math.gcd(a, b))
-
-        if len(args) == 0:
-            return 0
-        elif len(args) == 1:
-            return args[0]
-        else:
-            _lcm = args[0]
-            for i in range(1, len(args)):
-                _lcm = lcm(_lcm, args[i])
-            return _lcm

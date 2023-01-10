@@ -7,4 +7,7 @@ typer
 sklearn
 scikit-learn
 requests
+
 pymilvus
+elasticsearch
+# elasticsearch-dsl

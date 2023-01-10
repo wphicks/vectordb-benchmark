@@ -152,6 +152,21 @@ def gen_combinations(args):
         raise TypeError("[gen_combinations] No args handling exists for %s" % type(args).__name__)
 
 
+def gen_zips(args):
+    if isinstance(args, list):
+        return zip(args)
+    elif isinstance(args, dict):
+        flat = []
+        for k, v in args.items():
+            if isinstance(v, list):
+                flat.append([(k, el) for el in v])
+            else:
+                flat.append([(k, v)])
+        return [dict(x) for x in zip(*flat)]
+    else:
+        raise TypeError("[gen_zips] No args handling exists for %s" % type(args).__name__)
+
+
 def create_folder(file_path):
     folder_path, file_name = os.path.split(file_path)
     if not os.path.isdir(folder_path):
