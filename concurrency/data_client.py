@@ -4,7 +4,7 @@ import datetime
 import os
 
 try:
-    STATS_NAME_WIDTH = max(min(os.get_terminal_size()[0] - 80, 30), 0)
+    STATS_NAME_WIDTH = max(min(os.get_terminal_size()[0] - 30, 30), 0)
 except OSError:  # not a real terminal
     STATS_NAME_WIDTH = 30
 

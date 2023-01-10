@@ -20,10 +20,10 @@ python3 (>=3.8)
 `pip install -r requirements.txt`
 
 ### run recall benchmark
-> This method mainly provides the calculation of the search recall value of the server for the supported datasets and configuration parameters, 
-> so as to select index parameters and search parameters with a higher recall rate.
+> This method mainly provides the calculation of the server's search recall value for the supported datasets and configuration parameters, 
+> thus selecting index parameters and search parameters with a higher recall rate.
 > 
-> For parameter definitions, refer to the configuration file: **./configurations/milvus_recall.yaml**
+> For parameter definitions, refer to the configuration file: **./configurations/\<engine\>_recall.yaml**
 
 run help: `python3 main.py recall --help`
 
@@ -32,7 +32,7 @@ Usage: main.py recall [OPTIONS]
 
   :param host: server host
 
-  :param engine: only support milvus
+  :param engine: only supports milvus / elasticsearch
 
   :param dataset_name: four datasets are available to choose from as follows:
   glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular
@@ -61,7 +61,7 @@ example: `python3 main.py recall --host localhost --engine milvus --dataset-name
 > This method is used to perform concurrent search operations on an existing collection and given concurrency parameters, 
 > and print concurrency test results such as RPS.
 > 
-> For parameter definitions, refer to the configuration file: **./configurations/milvus_concurrency.yaml**
+> For parameter definitions, refer to the configuration file: **./configurations/\<engine\>_concurrency.yaml**
 
 run help: `python3 main.py concurrency --help`
 
@@ -70,7 +70,7 @@ Usage: main.py concurrency [OPTIONS]
 
   :param host: server host
 
-  :param engine: only support milvus
+  :param engine: only supports milvus / elasticsearch
 
   :param config_name:     specify the name of the configuration file in the
   configurations directory by prefix matching;     if not specified, all
@@ -97,19 +97,23 @@ example: `python3 main.py concurrency --host localhost --engine milvus`
 
 
 ```bash
-INFO: [ParserResult] Starting sync report, interval:20s, intermediate state results are available for reference (parser_result.py:50)
-INFO:  Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s (data_client.py:42)
-INFO: --------------------------------------------------------------------------------------------------------------------- (data_client.py:46)
-INFO:  Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s (data_client.py:42)
-INFO:  search                            1467     0(0.00%)  |     131      43    1291      92     823  |   73.35    0.00 (data_client.py:44)
-INFO:  Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s (data_client.py:42)
-INFO:  search                            2706     0(0.00%)  |     154      47    1040     118     703  |   61.95    0.00 (data_client.py:44)
-INFO:  Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s (data_client.py:42)
-INFO:  search                            4209     0(0.00%)  |     137      44    1703      97    1167  |   75.15    0.00 (data_client.py:44)
-INFO: [MultiProcessConcurrent] End concurrent pool (multi_process.py:49)
-INFO: ------------------------------------------------- Print final status ------------------------------------------------ (data_client.py:49)
-INFO:  Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s (data_client.py:50)
-INFO:  search                            4279     0(0.00%)  |     139      43    1703     100     785  |   70.53    0.00 (data_client.py:52)
+[ParserResult] Starting sync report, interval:20s, intermediate state results are available for reference
+ Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s
+---------------------------------------------------------------------------------------------------------------------
+ Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s
+ search                            4339     0(0.00%)  |      41      29     441      38      72  |  216.95    0.00
+ Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s
+ search                            9034     0(0.00%)  |      42      29     307      39      74  |  234.75    0.00
+ Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s
+ search                           13587     0(0.00%)  |      43      29     433      39     199  |  227.65    0.00
+[MultiProcessConcurrent] End concurrent pool
+------------------------------------------------- Print final status ------------------------------------------------
+ Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s
+ search                           13966     0(0.00%)  |      42      29     441      38     170  |  225.73    0.00
+------------------------ Print the status without start and end warmup time:0s as a reference -----------------------
+ Name                            # reqs      # fails  |     Avg     Min     Max  Median    TP99  |   req/s failures/s
+ search                           13966     0(0.00%)  |      42      29     441      38     170  |  225.73    0.00
+[ParserResult] Completed sync report
 ```
 
-*If you want to perform a concurrency test based on the search parameter with the most appropriate recall value, you can update the search parameters of the recall scene to milvus_concurrency.yaml, and then conduct a concurrency test*
+*If you want to perform a concurrency test based on the search parameter with the most appropriate recall value, you can update the search parameters of the recall scene to \<engine\>_concurrency.yaml, and then conduct a concurrency test*

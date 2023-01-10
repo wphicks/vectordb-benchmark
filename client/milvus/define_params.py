@@ -3,7 +3,7 @@ from typing import Optional
 
 
 MILVUS_DEFAULT_COLLECTION = "milvus_benchmark_collection"
-MILVUS_DEFAULT_METRIC_TYPE = "L2"
+MILVUS_DEFAULT_METRIC_TYPE = "L2"  # support L2,IP
 MILVUS_DEFAULT_FIELD_NAME = "float_vector"
 MILVUS_DEFAULT_DESCRIPTION = ""
 MILVUS_DEFAULT_MAX_LENGTH = 256
@@ -11,6 +11,15 @@ MILVUS_DEFAULT_DIM = 128
 
 
 DEFAULT_PRECISION = 3
+
+
+class SimilarityMetricType:
+    l2 = "L2"
+    cosine = "IP"
+    dot = "IP"
+
+    def get_attr(self, name):
+        return getattr(self, name, "")
 
 
 @dataclass

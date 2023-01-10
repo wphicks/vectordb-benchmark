@@ -1,12 +1,12 @@
 from client.milvus.client_milvus import ClientMilvus
-from client.mock.client_mock import ClientMock
+from client.elasticsearch.client_elasticsearch import ClientElasticsearch
 from concurrency.multi_process import MultiProcessConcurrent
 from datasets.reader import ReaderBase
 
 
 ClientObject = {
     "milvus": ClientMilvus,
-    "mock": ClientMock
+    "elasticsearch": ClientElasticsearch
 }
 
 

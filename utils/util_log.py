@@ -16,6 +16,22 @@ class TestLogConfig:
         self.log.setLevel(logging.DEBUG)
         self.set_log_level(use_stream=use_stream)
 
+    def debug(self, *args):
+        # print(*args)
+        self.log.debug(*args)
+
+    def info(self, *args):
+        print(*args)
+        self.log.info(*args)
+
+    def warning(self, *args):
+        print(*args)
+        self.log.warning(*args)
+
+    def error(self, *args):
+        print(*args)
+        self.log.error(*args)
+
     def set_log_level(self, use_stream=True):
         try:
             _format = "[%(asctime)s] - %(levelname)5s: %(message)s (%(filename)s:%(lineno)s)"
@@ -41,7 +57,7 @@ class TestLogConfig:
                 self.handlers.append(sh)
 
         except Exception as e:
-            print("Can not use %s or %s to log : %s" % (self.log_debug, self.log_info,  str(e)))
+            print("Can not use %s or %s to log : %s" % (self.log_debug, self.log_info, str(e)))
 
     def clear_log_file(self, log_files: list = None):
         if not log_files:
@@ -73,5 +89,4 @@ class TestLogConfig:
         raise Exception("[rename_logfiles] Generated log path exists, please check:{0}".format(file_path))
 
 
-test_log = TestLogConfig()
-log = test_log.log
+log = TestLogConfig(use_stream=False)

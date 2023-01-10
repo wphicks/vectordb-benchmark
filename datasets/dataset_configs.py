@@ -26,21 +26,21 @@ dataset_configs = {
     "deep-image-96-angular": {
         "dim": 96,
         "link": "http://ann-benchmarks.com/deep-image-96-angular.hdf5",
-        "similarity_metric_type": "IP"
+        "similarity_metric_type": "cosine"
     },
     "gist-960-euclidean": {
         "dim": 960,
         "link": "http://ann-benchmarks.com/gist-960-euclidean.hdf5",
-        "similarity_metric_type": "L2"
+        "similarity_metric_type": "l2"
     },
     "glove-100-angular": {
         "dim": 100,
         "link": "http://ann-benchmarks.com/glove-100-angular.hdf5",
-        "similarity_metric_type": "IP"
+        "similarity_metric_type": "cosine"
     },
     "glove-25-angular": {
         "dim": 25,
         "link": "http://ann-benchmarks.com/glove-25-angular.hdf5",
-        "similarity_metric_type": "IP"
+        "similarity_metric_type": "cosine"
     },
 }

@@ -2,40 +2,43 @@
 
 # Connection parameters can be added dynamically
 connection_params:
-  secure: false
+  max_retries: 100
 
-# Collection parameters can be added dynamically
-collection_params:
-  collection_name: milvus_benchmark_collection
+# Indices parameters can be added dynamically
+indices_params:
+  index: elasticsearch_benchmark_index
   other_fields: []
+
+  # Index parameters can be added dynamically
+  index_params:
+    index_type: hnsw
+    index_param:
+      m: 8
+      ef_construction: 200
 
 insert_params:
 #  The data size of the vector inserted each time can be specified
   batch: 10000
 
-# Index parameters can be added dynamically
-index_params:
-  index_type: HNSW
-  index_param:
-    M: 8
-    efConstruction: 200
-
 # Load parameters can be added dynamically
 # example:
-#  load_params:
-#     timeout: 60
-load_params: {}
+#  force_merge_params:
+#     wait_for_completion: true
+force_merge_params: {}
 
 # Search parameters can be added dynamically
 search_params:
-  timeout: 1800
+  timeout: '30m'
 
 # The following three sets of parameters will be cross-combined,
 # and then the corresponding recall rate test will be carried out in turn.
-  top_k: [10, 100]
-  nq: [5000, 10000]
-  search_param:
-    ef: [16, 32]
+  top_k: [10]
+  nq: 1  # only support nq equal to 1
+  num_candidates: [16, 32]
+#  filter:
+#    range:
+#      float:
+#        gte: 1000
 
 # After that, you can choose the most appropriate search parameters for concurrency testing
 # and get the optimal QPS of the server
