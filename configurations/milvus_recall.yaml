@@ -11,7 +11,7 @@ collection_params:
 
 insert_params:
 #  The data size of the vector inserted each time can be specified
-  batch: 10000
+  batch: 1000
 
 # Index parameters can be added dynamically
 index_params:

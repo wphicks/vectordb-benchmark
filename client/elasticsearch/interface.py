@@ -12,8 +12,7 @@ from client.elasticsearch.define_params import (
     ES_DEFAULT_PORT,
     ES_DEFAULT_INDEX,
     ES_DEFAULT_FIELD_NAME,
-    ES_DEFAULT_INDEX_NAME,
-    ES_DEFAULT_INDEX_PARAMS,
+    ES_DEFAULT_INDEX_OPTIONS,
     ES_DEFAULT_METRIC_TYPE,
     ES_DEFAULT_TEXT_LENGTH,
     ES_DEFAULT_DIM,
@@ -30,27 +29,28 @@ def es_catch():
     def wrapper(func):
         def inner_wrapper(*args, **kwargs) -> float:
             content = f"##['{func.__name__}', "
+            result = False
             start = time.perf_counter()
             try:
                 res = func(*args, **kwargs)
                 rt = (time.perf_counter() - start) * 1000
-                if res:
-                    result = True if res.meta.status == HttpCode.OK else False
+                if res and res.meta.status == HttpCode.OK:
+                    result = True
                     # rt = res.meta.duration * 1000
-                else:
-                    result = False
                 return_res = (result, round(rt, DEFAULT_PRECISION), res)
                 content += "{0}, {1}]## {2}".format(*return_res)
                 return rt
             except Exception as e:
                 rt = (time.perf_counter() - start) * 1000
 
-                return_res = (False, round(rt, DEFAULT_PRECISION), e)
+                return_res = (result, round(rt, DEFAULT_PRECISION), e)
                 content += "{0}, {1}]## {2}".format(*return_res)
                 return rt
             finally:
                 log.debug(content)
+
         return inner_wrapper
+
     return wrapper
 
 
@@ -81,8 +81,8 @@ class InterfaceElasticsearch(InterfaceBase):
     def connect_indices(self, index=ES_DEFAULT_INDEX):
         self.index = index
 
-    def create_indices(self, index=ES_DEFAULT_INDEX, field_name=ES_DEFAULT_FIELD_NAME, index_type=ES_DEFAULT_INDEX_NAME,
-                       metric_type=ES_DEFAULT_METRIC_TYPE, index_param=ES_DEFAULT_INDEX_PARAMS, timeout="2m",
+    def create_indices(self, index=ES_DEFAULT_INDEX, field_name=ES_DEFAULT_FIELD_NAME,
+                       metric_type=ES_DEFAULT_METRIC_TYPE, timeout="2m", index_options=ES_DEFAULT_INDEX_OPTIONS,
                        other_fields=[], **kwargs):
         self.index = index
         other_fields_properties = {o: {"type": INDEX_TYPE_MAPPING.get(o, ES_DEFAULT_TYPE),
@@ -94,15 +94,12 @@ class InterfaceElasticsearch(InterfaceBase):
                     "dims": kwargs.pop("dim", ES_DEFAULT_DIM),
                     "index": True,
                     "similarity": metric_type,
-                    "index_options": {
-                        "type": index_type,
-                        **index_param,
-                    },
+                    "index_options": index_options,
                 },
                 **other_fields_properties,
             }
         }
-        return self.client.indices.create(index=self.index, mappings=mappings, timeout=timeout)
+        return self.client.indices.create(index=self.index, mappings=mappings, timeout=timeout, **kwargs)
 
     def insert_batch(self, vectors, ids, timeout="10m"):
         """
@@ -138,7 +135,7 @@ class InterfaceElasticsearch(InterfaceBase):
         return self.client.indices.forcemerge(index=self.index, wait_for_completion=True, **kwargs)
 
     def get_indices_info(self):
-        return self.client.indices.get(index=ES_DEFAULT_INDEX).body[self.index]
+        return self.client.indices.get(index=self.index).body[self.index]
 
     def get_indices_params(self):
         field_name = ES_DEFAULT_FIELD_NAME
@@ -148,7 +145,7 @@ class InterfaceElasticsearch(InterfaceBase):
             if v["type"] == IndexSupport.DenseVector:
                 field_name = k
                 dim = v["dims"]
-        return field_name, dim,
+        return field_name, dim
 
     def gen_entities(self, info, vectors=None, ids=None):
         if not isinstance(info, dict):

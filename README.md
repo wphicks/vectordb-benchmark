@@ -3,7 +3,7 @@
 ## overview
 This is an open-source benchmark for evaluating the performance of vector databases, the main functions are as follows:
 1. Specify the dataset and parameters to calculate the **Search Recall**
-2. Specify the search vectors and parameters, and calculate the **QPS**
+2. Specify the search vectors and parameters, and calculate the **RPS**
 
 ## run benchmark client
 
