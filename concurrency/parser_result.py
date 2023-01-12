@@ -16,8 +16,6 @@ class ParserResult:
         self.read_client = StreamRead(file_path=file_path, interval=interval)
         self.data_client = DataClient(interval=interval, warm_time=warm_time, during_time=during_time)
 
-        self.final = False
-
     @staticmethod
     def data_parser_format():
         _data_time = r'\[\d+-\d+-\d+\s+\d+:\d+:\d+.\d+\]'
@@ -43,20 +41,22 @@ class ParserResult:
         for _c in _contents:
             self.data_client.add_data(DataParams(*self.parser_content(_c)))
 
-        if not self.final:
-            self.data_client.print_intermediate_state()
-        else:
-            self.data_client.print_final_state(real_time=self.real_time)
-            self.data_client.print_warm_state(during_time=self.real_time - self.warm_time * 2)
+    def print_intermediate_status(self, content: str):
+        self.data_parser(content)
+        self.data_client.print_intermediate_state()
+
+    def print_final_status(self, content: str):
+        self.data_parser(content)
+        self.data_client.print_final_state(real_time=self.real_time)
+        self.data_client.print_warm_state(during_time=self.real_time - self.warm_time * 2)
 
     def start_stream_read(self, start_time: datetime = None):
         log.info(f"[ParserResult] Starting sync report, interval:{self.interval}s, " +
                  "intermediate state results are available for reference")
         self.data_client.update_start_time(start_time)
-        self.read_client.tick_read_incremental_file(callable_object=self.data_parser)
+        self.read_client.tick_read_incremental_file(callable_object=self.print_intermediate_status)
 
     def finish_stream_read(self, real_time=None):
-        self.final = True
         self.real_time = real_time or self.real_time
-        self.read_client.final_read_incremental_file(callable_object=self.data_parser)
+        self.read_client.final_read_incremental_file(callable_object=self.print_final_status)
         log.info("[ParserResult] Completed sync report")

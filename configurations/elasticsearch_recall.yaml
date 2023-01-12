@@ -10,15 +10,18 @@ indices_params:
   other_fields: []
 
   # Index parameters can be added dynamically
-  index_params:
-    index_type: hnsw
-    index_param:
-      m: 8
-      ef_construction: 200
+  index_options:
+    type: hnsw
+    m: 8
+    ef_construction: 200
+
+#  settings:
+#    number_of_shards: 1
+#    number_of_replicas: 1
 
 insert_params:
 #  The data size of the vector inserted each time can be specified
-  batch: 10000
+  batch: 1000
 
 # Load parameters can be added dynamically
 # example:
