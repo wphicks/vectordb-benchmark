@@ -43,4 +43,9 @@ dataset_configs = {
         "link": "http://ann-benchmarks.com/glove-25-angular.hdf5",
         "similarity_metric_type": "cosine"
     },
+    "sift-128-euclidean": {
+        "dim": 128,
+        "link": "http://ann-benchmarks.com/sift-128-euclidean.hdf5",
+        "similarity_metric_type": "l2"
+    },
 }

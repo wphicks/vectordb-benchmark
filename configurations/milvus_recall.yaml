@@ -32,7 +32,7 @@ search_params:
 
 # The following three sets of parameters will be cross-combined,
 # and then the corresponding recall rate test will be carried out in turn.
-  top_k: [10, 100]
+  top_k: [10]
   nq: [5000, 10000]
   search_param:
     ef: [16, 32]
