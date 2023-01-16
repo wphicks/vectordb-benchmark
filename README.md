@@ -1,11 +1,16 @@
 # vectordb-benchmark
 
-## overview
+## Overview
 This is an open-source benchmark for evaluating the performance of vector databases, the main functions are as follows:
 1. Specify the dataset and parameters to calculate the **Search Recall**
 2. Specify the search vectors and parameters, and calculate the **RPS**
 
-## run benchmark client
+## Run benchmark server
+You can use your existing server, or deploy the server through the docker-compose provided by the tool, using the following command:
+
+`cd .server/<engine>/; docker-compose up -d`
+
+## Run benchmark client
 
 * Logs of the benchmarks are stored in the ./results/result.*
 
@@ -43,7 +48,7 @@ Usage: main.py recall [OPTIONS]
 
   :param config_name:     specify the name of the configuration file in the
   configurations directory by prefix matching;     if not specified, all
-  milvus_recall*.yaml in the configuration directory will be used.
+  <engine>_recall*.yaml in the configuration directory will be used.
 
 Options:
   --host TEXT               [default: localhost]
@@ -75,7 +80,7 @@ Usage: main.py concurrency [OPTIONS]
 
   :param config_name:     specify the name of the configuration file in the
   configurations directory by prefix matching;     if not specified, all
-  milvus_concurrency*.yaml in the configuration directory will be used.
+  <engine>_concurrency*.yaml in the configuration directory will be used.
 
 Options:
   --host TEXT         [default: localhost]
@@ -118,3 +123,7 @@ example: `python3 main.py concurrency --host localhost --engine milvus`
 ```
 
 *If you want to perform a concurrency test based on the search parameter with the most appropriate recall value, you can update the search parameters of the recall scene to \<engine\>_concurrency.yaml, and then conduct a concurrency test*
+
+## Contributing
+Contributions to vectordb-benchmark are welcome from everyone.
+See [Guidelines for Contributing](CONTRIBUTING.md) for details on adding a new engine and the contribution workflow.

@@ -99,6 +99,8 @@ class InterfaceMilvus(InterfaceBase):
         return round(time.perf_counter() - start, DEFAULT_PRECISION)
 
     def flush_collection(self):
+        if not hasattr(self.collection, "flush"):
+            return self.collection.num_entities
         return self.collection.flush()
 
     def wait_for_compaction_completed(self):

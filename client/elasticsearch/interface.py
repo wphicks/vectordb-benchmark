@@ -48,9 +48,7 @@ def es_catch():
                 return rt
             finally:
                 log.debug(content)
-
         return inner_wrapper
-
     return wrapper
 
 

@@ -16,7 +16,7 @@ def concurrency(host: str = "localhost", engine: str = typer.Option("milvus"), c
 
     :param config_name:
         specify the name of the configuration file in the configurations directory by prefix matching;
-        if not specified, all milvus_concurrency*.yaml in the configuration directory will be used.
+        if not specified, all <engine>_concurrency*.yaml in the configuration directory will be used.
     """
     configs = get_custom_files(config_name) if config_name != "" else get_files(f"{engine}_concurrency")
     log.clear_log_file()
@@ -45,7 +45,7 @@ def recall(host: str = typer.Option("localhost"), engine: str = typer.Option("mi
 
     :param config_name:
         specify the name of the configuration file in the configurations directory by prefix matching;
-        if not specified, all milvus_recall*.yaml in the configuration directory will be used.
+        if not specified, all <engine>_recall*.yaml in the configuration directory will be used.
     """
     configs = get_custom_files(config_name) if config_name != "" else get_files(f"{engine}_recall")
     log.clear_log_file()
