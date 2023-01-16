@@ -35,7 +35,8 @@ Usage: main.py recall [OPTIONS]
   :param engine: only supports milvus / elasticsearch
 
   :param dataset_name: four datasets are available to choose from as follows:
-  glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular
+  glove-25-angular / glove-100-angular / gist-960-euclidean / deep-image-96-angular /
+  sift-128-euclidean
 
   :param prepare: search an existing collection without skipping data
   preparation

@@ -99,6 +99,8 @@ class InterfaceElasticsearch(InterfaceBase):
                 **other_fields_properties,
             }
         }
+        log.debug(
+            f"[InterfaceElasticsearch] Create indices:{self.index}, mappings:{mappings}, timeout:{timeout}, kwargs:{kwargs}")
         return self.client.indices.create(index=self.index, mappings=mappings, timeout=timeout, **kwargs)
 
     def insert_batch(self, vectors, ids, timeout="10m"):
