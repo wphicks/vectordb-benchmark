@@ -37,7 +37,7 @@ concurrent_tasks:
       nq: 1
       top_k: 100
       search_param:
-        ef: 690
+        ef: 470
       timeout: 60
       search_vectors: "glove-100-angular.hdf5"
 
