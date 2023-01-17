@@ -17,8 +17,8 @@ insert_params:
 index_params:
   index_type: HNSW
   index_param:
-    M: 32
-    efConstruction: 200
+    M: 16
+    efConstruction: 100
 
 # Load parameters can be added dynamically
 # example:
@@ -35,7 +35,7 @@ search_params:
   top_k: [100]
   nq: [5000]
   search_param:
-    ef: [470]
+    ef: [106]
 
 # After that, you can choose the most appropriate search parameters for concurrency testing
 # and get the optimal QPS of the server

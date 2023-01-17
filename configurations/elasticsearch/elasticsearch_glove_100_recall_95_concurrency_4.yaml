@@ -3,45 +3,47 @@
 database_params: {}
 # The following parameters will be used to generate vectors for searching when you do not pass in search_vectors
 # By default, parameters are automatically obtained from the given collection
-#  metric_type: IP
-#  dim: 25
 
-# Connection parameters can be added dynamically to connect to milvus
+# Connection parameters can be added dynamically to connect to elasticsearch
 connection_params:
-  secure: false
+  max_retries: 100
 
-collection_params:
-# Connect to the specified collection in milvus server, the default is milvus_benchmark_collection
-  collection_name: milvus_benchmark_collection
+indices_params:
+# Connect to the specified collection in elasticsearch server, the default is elasticsearch_benchmark_index
+  index: elasticsearch_benchmark_index
 
 # The following are the parameters used in concurrent
 concurrent_params:
   # Make sure the current machine resources are sufficient to start the number of processes
-  concurrent_number: 1  # Total concurrent
+  concurrent_number: 4  # Total concurrent
   # This tool is suitable for performance testing, please keep the concurrency within a reasonable range
-  during_time: 60 # second, total concurrent time
-  interval: 20  # second, time interval for printing intermediate states
+  # total concurrent time = warm_time * 2 + during_time
+  # The state that includes warmup time and the state that does not include warmup time will be printed separately in the end state
+  during_time: 60 # seconds
+  warm_time: 0  # seconds
+  interval: 20  # seconds, time interval for printing intermediate states
 concurrent_tasks:
-# Currently, two interfaces are supported concurrently
+# Currently, one interface is supported concurrently
 # `type`: supported interface type
 # `weight`: when concurrent, this interface accounts for the weight of all interfaces
 # `params`: interface parameters
-  - type: query
-    weight: 0  # the interface will not be selected during concurrency
-    params:
-      expr: "id in [1, 10, 100, 1000]"
-      timeout: 60
   - type: search
     weight: 1
     params:
-      nq: 1
+      # params for search param knn
+      nq: 1  # only support nq equal to 1
       top_k: 100
-      search_param:
-        ef: 470
-      timeout: 60
+      num_candidates: 188
+#      filter:
+#        range:
+#          float:
+#            gte: 1000
+
+      timeout: '1m'
       search_vectors: "glove-100-angular.hdf5"
 
       # If you select the hdf5 dataset, the vector in the `test` set will be used as the search vectors
       # If you remove the search_vectors field, the vectors will be randomly generated
-      # This field also supports vectors in formats such as *.npy / *.json / *.txt
+      # This field also supports vectors in formats: *.npy / *.json / *.txt
       # Please use the absolute path of the file
+      # Unless you choose a file that already exists in the ./datasets/dataset_files/, you can directly write the file name
