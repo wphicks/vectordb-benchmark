@@ -48,4 +48,9 @@ dataset_configs = {
         "link": "http://ann-benchmarks.com/sift-128-euclidean.hdf5",
         "similarity_metric_type": "l2"
     },
+    "yoochoose": {
+        "dim": 64,
+        "link": "file://datasets/dataset_files/dataset_files/yoochoose.hdf5",
+        "similarity_metric_type": "l2"
+    },
 }
