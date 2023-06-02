@@ -53,4 +53,9 @@ dataset_configs = {
         "link": "file://datasets/dataset_files/dataset_files/yoochoose.hdf5",
         "similarity_metric_type": "l2"
     },
+    "yoochoose-user": {
+        "dim": 64,
+        "link": "file://datasets/dataset_files/dataset_files/yoochoose-user.hdf5",
+        "similarity_metric_type": "l2"
+    },
 }

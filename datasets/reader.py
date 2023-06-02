@@ -1,3 +1,4 @@
+import numpy as np
 from dataclasses import dataclass
 from common.common_func import read_ann_hdf5_file
 from datasets.dataset_configs import get_dataset_config
@@ -49,8 +50,12 @@ class ReaderBase:
 
     def iter_test_vectors(self, batch: int, top_k: int):
         v, n, d, b = [], [], [], 0
+        with np.load('datasets/dataset_files/vdb_reversed.npz') as data:
+            vdata = data['v']
+            ndata = data['n']
+            ddata = data['d']
         for vectors, neighbors, distances in zip(
-                self.dataset_content.test, self.dataset_content.neighbors, self.dataset_content.distances
+                vdata, ndata, ddata
         ):
             v.append(vectors.tolist())
             n.append(neighbors.tolist()[:top_k])
