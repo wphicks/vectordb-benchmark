@@ -17,8 +17,9 @@ class DatasetDownload:
             create_folder(self.config.path)
             filename, headers = urllib.request.urlretrieve(url=self.config.link, filename=self.config.path)
             log.info(f"[DatasetDownload] File has been downloaded:{filename}")
-            # if not self.check_file_length():
-            #     raise Exception("[DatasetDownload] File check failed:{}".format(self.config.path))
+            if not self.check_file_length():
+                # raise Exception("[DatasetDownload] File check failed:{}".format(self.config.path))
+                pass
         return self.config.path
 
     def check_file_length(self):

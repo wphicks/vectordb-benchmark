@@ -106,6 +106,7 @@ class DataEntry:
                 self.warm_success += 1
                 self.warm_rt_list.append(dp.api_rt)
         else:
+            __import__('pdb').set_trace()
             self.num_failures += 1
             self.current_failures += 1
             if self.warm_time_check(dp.data_time):
