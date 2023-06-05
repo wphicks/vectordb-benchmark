@@ -37,7 +37,9 @@ class ReaderBase:
         self.dataset_content = DatasetContent(f["neighbors"], f["test"], f["train"], f["distances"])
 
     def iter_train_vectors(self, batch: int):
-        train_len = len(self.dataset_content.train)
+        with np.load('datasets/dataset_files/vdb.npz') as data:
+            indexed_vectors = data['indexed_vectors']
+        train_len = len(indexed_vectors)
         all_iter = [batch for i in range(batch, train_len, batch)]
         if train_len % batch > 0:
             all_iter += (train_len % batch, )
@@ -45,17 +47,17 @@ class ReaderBase:
         _start = 0
         for i in all_iter:
             _end = _start + i
-            yield [d for d in range(_start, _end)], self.dataset_content.train[_start:_end]
+            yield [d for d in range(_start, _end)], indexed_vectors[_start:_end]
             _start = _end
 
     def iter_test_vectors(self, batch: int, top_k: int):
         v, n, d, b = [], [], [], 0
-        with np.load('datasets/dataset_files/vdb_reversed.npz') as data:
-            vdata = data['v']
-            ndata = data['n']
-            ddata = data['d']
+        with np.load('datasets/dataset_files/vdb.npz') as data:
+            search_vectors = data['search_vectors']
+            ids = data['ids']
+            dists = data['dists']
         for vectors, neighbors, distances in zip(
-                vdata, ndata, ddata
+                search_vectors, ids, dists
         ):
             v.append(vectors.tolist())
             n.append(neighbors.tolist()[:top_k])
